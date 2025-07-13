@@ -1,13 +1,64 @@
-# React + Vite
+# 🧠 Image Analyzer Chrome Extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Chrome Extension that uses the **Google Vision API** to analyze images for inappropriate content, racy content, profanity, and more. Just right-click on an image, and get detailed content analysis using AI.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- 🖼️ Right-click any image to analyze
+- 🔍 Detect categories like:
+  - Inappropriate
+  - Racy
+  - Profanity
+  - Gross
+  - Body Parts
+- 🔐 Uses Google Cloud Vision API
+- ⚡ Built using React + Vite for fast performance
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# Image_analyzer_chrome_extension
+---
+
+## 📦 Tech Stack
+
+- React
+- Vite
+- Google Vision API
+- Chrome Extension (Manifest v3)
+
+---
+
+## 🔧 Setup Instructions
+
+### 1. **Clone the Repository**
+```bash
+git clone https://github.com/your-username/image-analyzer-extension.git
+cd image-analyzer-extension
+
+
+### 2. **Install Dependencies**
+```bash 
+npm install
+
+
+### 3. Add Google API Key
+Create a .env file in the root directory:
+```.env
+VITE_API_KEY="your_google_vision_api_key"
+
+### 4. Build the Extension
+```bash
+npm run build
+This will generate a dist/ folder containing the compiled extension
+
+### 5.  Load Extension in Chrome
+- Open Chrome
+- Go to chrome://extensions/
+- Enable Developer Mode (top-right)
+- Click Load unpacked
+- Select the dist/ folder
+You should now see the extension active
+
+### 6. Usuage 
+- Right-click on any image in your browser
+- Choose "Analyze with Image Analyzer"
+- A new tab will open showing the analysis results based on the Vision API response
