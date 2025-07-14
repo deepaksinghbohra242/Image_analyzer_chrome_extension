@@ -7,6 +7,7 @@ function App() {
     "https://static.vecteezy.com/system/resources/previews/009/418/381/non_2x/simple-3d-editable-text-effect-vector.jpg"
   );
   const [timestamp, setTimestamp] = useState("");
+  const [email, setEmail] = useState("");
   const [result, setResult] = useState(null);
   const API_Key = import.meta.env.VITE_API_KEY;
 
@@ -22,6 +23,25 @@ function App() {
             .then((categorized) => setResult(categorized))
             .catch((err) => console.error("Analyze error:", err));
         }
+      });
+    }
+    if (chrome.identity) {
+      chrome.identity.getAuthToken({ interactive: true }, (token) => {
+        if (chrome.runtime.lastError || !token) {
+          console.error("Auth error:", chrome.runtime.lastError?.message);
+          return;
+        }
+
+        fetch("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.email) setEmail(data.email);
+          })
+          .catch((err) => console.error("Failed to fetch user info", err));
       });
     }
   }, []);
@@ -45,6 +65,9 @@ function App() {
         <h1>Image Analyzer</h1>
         <button onClick={handleClick}>Analyze Again</button>
 
+        <div>
+          <strong>Email:</strong> {email || "Fetching..."}
+        </div>
         <div>
           <strong>URL:</strong> {url || "Fetching..."}
         </div>

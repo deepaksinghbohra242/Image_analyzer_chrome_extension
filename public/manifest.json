@@ -5,8 +5,12 @@
   "description": "Analyze images from the current tab and get insights.",
   "key": "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC108SBpGY0/118k1gWwtKLpxhHXyz/85J6eAcoAUE1o9aUhn9Bzp67OmZNyBkCweV50oWQQqBSBQzKlEz02hm6OPP5JNoHm+c0DrsmBGPpVZaNa+WVlQGhfLbAV05hjn+JvitBaTpJg8mrsuQTB3r8jouYTQd6Q2+2v+081obPgBDU0rWg8qZPHFtUP0GpTbMe5j/s6H0MURwrGJfJnp9s0RiB5eiTB1otM5ng1IPmLoKBGvjhHHKM5i6czaEWT7g2wXi2AKAtEXmR81BHN9zKBmj4KDxiE6+BJUkJFHVEsKyj3Pf4poDlJB+kzf0GBIqyH4g+Jb8/n8zlLEagUJuBAgMBAAECggEACbzOVooNHjP51/jVHBzxZSC8/F+Eu61Z8Bya94G/sgV08a3VRVsxJYI+ZdZ8PmlPZouHcx8aUmIqWfQAvhErFQ3FRRe75HHtOxy52ZKdHisi/a5kVHMvK+yPpfPXAwL8Yg5Q5zchM7wu0fbp33oEVF+26qBfcOUJJ86WAC7V9+lDAXQR1T8a18QBNlmq6BpeT8H0TgEaO7e2glL2dn4fDbvQWD9zuXpi2UBtTP87H1rhrKfU2E9cH4q5JonN4RMqlTiGyzgk3RDRBpubtV1Lmyfz3O+Jk4e7ayyIz2fhjYIb1Hb15O9gRAVI1Rr/wTy9Hg72+ePWHIFR2QMkdqbJlQKBgQDZlex1i2RYQ2RQhCEYAw3rTd/ELTomsLFaAACw+TGOBe7MP7DSURrx1KyvPt05u8dTt6Qid4rjJLcd8BsQpstJKg2waQh0i96j5ZTGvTRzAW9JRqjjwc7iY9UJG2YqitHnPEfjutyF1TLNdzSIEiiEycYsJ/nV7eAyCGwNf6VBJQKBgQDV7bGfJ/70I4t6SyhWV3j0BuiJgDrym5iYBlV1wsxlkQ2CSMATU6hwwqJWiMNUaErFRuuF0mwzo0azqE5jOMp/wtMb48uBz5M3vwg1VQ8RRlouasV+u2qRyPGl67KP2C7e5EUOae8qUQT4gb9lSi8cqU4R3OQe1QbSsQ+L+98ILQKBgFFeG3spkXDgYtcpUibknYPtL0zxjNmDIg+CCMAlsD5oQZDoEHvWELl2ys0OOTSp4DSSbDLneWzQAhqT+8sSVNsbetsJrDvJQo0QAb8AamjHlJJWdjoV9AP9SWGKeX5XQ3+xr0CeVHFH9SOY/HAWOkjOG+nPWUKDHmAXfjDeFzJxAoGACSmoHPACnIRVOgS0EpamiJUvKoyCedeuPnyu9l9Ej+kZkgX5rBo+Ma40c85hx2C8Kxzxg4bSuZd5tMI1sUxCaBx5HE2ybrnsTUvyVw5wmcXQoQJTuSzf0KSxrPCeckjJISTXzFk/NCnKM7ai8vytbeXWgS9b2fI325hX2SANmnUCgYBFl7VmUImpuanIWVHi2LnN8fyhlGmhMMO/4/I7NiNqaeJQQ5hEr/iy97LUyG9myQHEEvR/BWQW9zGiSda0DxoduG4c6kmRfBubp5yJ/6+ICKlTDkRUP3gdM/GPzi/z2/1NYmaqUEbPATrxT7Oc6SMzYHZqQoBoJQzWC85v20XzYA==",
   "permissions": [
-    "tabs" , "activeTab"
+    "tabs" , "activeTab" , "identity"
   ],
+  "oauth2": {
+    "client_id": "648176215467-ucg54kvk91gisfeteqgq16li8norporr.apps.googleusercontent.com",
+    "scopes": ["email", "profile"]
+  },
   "host_permissions": [
     "<all_urls>"
   ],
