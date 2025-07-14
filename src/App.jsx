@@ -4,7 +4,7 @@ import "./app.css";
 
 function App() {
   const [url, setUrl] = useState(
-    "https://upload.wikimedia.org/wikipedia/commons/f/f7/M16_and_AK-47_comparison.png"
+    "https://static.vecteezy.com/system/resources/previews/009/418/381/non_2x/simple-3d-editable-text-effect-vector.jpg"
   );
   const [timestamp, setTimestamp] = useState("");
   const [result, setResult] = useState(null);
