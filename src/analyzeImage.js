@@ -32,7 +32,7 @@ export async function analyzeImage(url, API_Key) {
     );
 
     const data = await response.json();
-    const annotations = data.responses[0];
+    const annotations = data.responses?.[0];
 
     const labels = annotations.labelAnnotations || [];
 
