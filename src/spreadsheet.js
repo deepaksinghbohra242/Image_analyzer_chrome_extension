@@ -80,7 +80,6 @@ export async function addHeaders(token, spreadsheetId) {
     
     console.log("Adding headers to sheet:", sheetName);
     
-    // Fixed: Use PUT to specifically place headers in row 1
     const response = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A1:O1?valueInputOption=USER_ENTERED`,
       {
@@ -132,7 +131,6 @@ export async function appendRow(token, spreadsheetId, rowData) {
     
     console.log("Using sheet name:", sheetName);
     
-    // Use APPEND method but specify starting from row 2 to avoid overriding headers
     const response = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A2:Z:append?valueInputOption=USER_ENTERED`,
       {
@@ -160,7 +158,6 @@ export async function appendRow(token, spreadsheetId, rowData) {
   }
 }
 
-// Helper function to flatten the analysis result
 export function flattenAnalysisResult(email, url, timestamp, analysisResult) {
   const categories = ['body parts', 'gross', 'inappropriate', 'other', 'profanity', 'racy', 'underwear/lingerie'];
   

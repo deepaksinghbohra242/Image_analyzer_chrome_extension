@@ -37,6 +37,8 @@ export async function analyzeImage(url, API_Key) {
     const safeSearch = annotations.safeSearchAnnotation || {};
     const textAnnotations = annotations.textAnnotations || [];
 
+    console.log("Labels:", annotations);
+
     const categories = {
       racy: { totalScore: 0, count: 0, descriptions: "" },
       "underwear/lingerie": { totalScore: 0, count: 0, descriptions: "" },
