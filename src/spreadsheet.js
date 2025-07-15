@@ -23,14 +23,17 @@ export async function createSpreadsheet(token, result) {
     const data = await response.json();
     
     if (!response.ok) {
+      console.error("Error creating spreadsheet:", data);
       return;
     }
 
     console.log("Spreadsheet created:", data.spreadsheetId);
     
-    await addHeaders(token, data.spreadsheetId);
+    const headersSuccess = await addHeaders(token, data.spreadsheetId);
     
-    await appendRow(token, data.spreadsheetId, result);
+    if (headersSuccess) {
+      await appendRow(token, data.spreadsheetId, result);
+    }
     
   } catch (error) {
     console.error("Error in createSpreadsheet:", error);
@@ -67,12 +70,19 @@ export async function addHeaders(token, spreadsheetId) {
     );
     
     const sheetInfo = await sheetInfoResponse.json();
+    
+    if (!sheetInfoResponse.ok) {
+      console.error("Error getting sheet info:", sheetInfo);
+      return;
+    }
+    
     const sheetName = sheetInfo.sheets[0].properties.title;
     
     console.log("Adding headers to sheet:", sheetName);
     
+    // Fixed: Use PUT to specifically place headers in row 1
     const response = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A1:Q1?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A1:O1?valueInputOption=USER_ENTERED`,
       {
         method: "PUT",
         headers: {
@@ -89,18 +99,19 @@ export async function addHeaders(token, spreadsheetId) {
     
     if (!response.ok) {
       console.error("Error adding headers:", result);
-      return;
+      return false;
     }
     
     console.log("Headers added successfully");
+    return true;
   } catch (error) {
     console.error("Error in addHeaders:", error);
+    return false;
   }
 }
 
 export async function appendRow(token, spreadsheetId, rowData) {
   try {
-    // First, get the current sheet info to find the correct sheet name
     const sheetInfoResponse = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`,
       {
@@ -111,30 +122,21 @@ export async function appendRow(token, spreadsheetId, rowData) {
     );
     
     const sheetInfo = await sheetInfoResponse.json();
+    
+    if (!sheetInfoResponse.ok) {
+      console.error("Error getting sheet info:", sheetInfo);
+      return;
+    }
+    
     const sheetName = sheetInfo.sheets[0].properties.title;
     
     console.log("Using sheet name:", sheetName);
     
-    // Get current data to find next empty row
-    const dataResponse = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A:Z`,
-      {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      }
-    );
-    
-    const currentData = await dataResponse.json();
-    const nextRow = (currentData.values ? currentData.values.length : 0) + 1;
-    
-    console.log("Inserting at row:", nextRow);
-    
-    // Insert the row at the specific position
+    // Use APPEND method but specify starting from row 2 to avoid overriding headers
     const response = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A${nextRow}:Z${nextRow}?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A2:Z:append?valueInputOption=USER_ENTERED`,
       {
-        method: "PUT",
+        method: "POST",
         headers: {
           Authorization: "Bearer " + token,
           "Content-Type": "application/json"
