@@ -37,7 +37,7 @@ export async function analyzeImage(url, API_Key) {
     const safeSearch = annotations.safeSearchAnnotation || {};
     const textAnnotations = annotations.textAnnotations || [];
 
-    console.log("Labels:", annotations);
+    console.log("Labels:", labels); 
 
     const categories = {
       racy: { totalScore: 0, count: 0, descriptions: "" },
@@ -48,88 +48,65 @@ export async function analyzeImage(url, API_Key) {
       other: { totalScore: 0, count: 0, descriptions: "" },
     };
 
-    // Analyze LABEL_DETECTION
+    function categorizeText(text) {
+      const lowerText = text.toLowerCase();
+      
+      if (Lingerie.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+        return "underwear/lingerie";
+      } else if (BodyParts.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+        return "body parts";
+      } else if (Gross.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+        return "gross";
+      } else if (Profanity.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+        return "profanity";
+      } else if (Racy.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+        return "racy";
+      }
+      return "other";
+    }
+
     for (let label of labels) {
       const desc = label.description.toLowerCase();
       const score = label.score;
-
-      let category = "other";
-      if (
-        Lingerie.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-      ) {
-        category = "underwear/lingerie";
-      } else if (
-        BodyParts.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-      ) {
-        category = "body parts";
-      } else if (
-        Gross.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-      ) {
-        category = "gross";
-      } else if (
-        Profanity.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-      ) {
-        category = "profanity";
-      } else if (
-        Racy.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-      ) {
-        category = "racy";
-      }
+      const category = categorizeText(desc);
 
       categories[category].totalScore += score;
       categories[category].count += 1;
       categories[category].descriptions += desc + ", ";
     }
 
-    if (textAnnotations.length > 0) {
-      for (let label of textAnnotations) {
-        const desc = label.description.toLowerCase();
-
-        let category = "other";
-        if (
-          Lingerie.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-        ) {
-          category = "underwear/lingerie";
-        } else if (
-          BodyParts.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-        ) {
-          category = "body parts";
-        } else if (
-          Gross.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-        ) {
-          category = "gross";
-        } else if (
-          Profanity.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-        ) {
-          category = "profanity";
-        } else if (
-          Racy.some((word) => new RegExp(`\\b${word}\\b`, "i").test(desc))
-        ) {
-          category = "racy";
-        }
+    if (textAnnotations.length > 1) {
+      for (let i = 1; i < textAnnotations.length; i++) {
+        const annotation = textAnnotations[i];
+        const desc = annotation.description.toLowerCase();
+        const category = categorizeText(desc);
 
         categories[category].totalScore += 1;
         categories[category].count += 1;
         categories[category].descriptions += desc + ", ";
       }
     }
-    const safeSearchCategories = [
-      "adult",
-      "racy",
-    ];
+
+    const safeSearchCategories = ["adult", "racy"];
     for (const type of safeSearchCategories) {
       const likelihood = safeSearch[type];
-      if (["LIKELY", "VERY_LIKELY", "POSSIBLE"].includes(likelihood)) {
-        categories["racy"].descriptions += categories["other"].descriptions;
-        categories["racy"].totalScore += categories["other"].totalScore;
-        categories["racy"].count += categories["other"].count;
-        categories["other"].descriptions = "";
-        categories["other"].totalScore = 0;
-        categories["other"].count = 0;
+      let scoreToAdd = 0;
+      
+      if (likelihood === "VERY_LIKELY") {
+        scoreToAdd = 1;
+      } else if (likelihood === "LIKELY") {
+        scoreToAdd = 0.9;
+      } else if (likelihood === "POSSIBLE") {
+        scoreToAdd = 0.8;
+      }
+      
+      if (scoreToAdd > 0) {
+        categories["racy"].descriptions += "racy content, ";
+        categories["racy"].totalScore += scoreToAdd;
+        categories["racy"].count += 1;
       }
     }
 
-    // Final formatting
     const finalCategories = {};
     for (const [key, value] of Object.entries(categories)) {
       const { totalScore, count, descriptions } = value;

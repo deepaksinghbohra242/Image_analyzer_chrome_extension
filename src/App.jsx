@@ -88,7 +88,7 @@ function App() {
       setStatus("Checking for existing spreadsheet...");
       
       fetch(
-        "https://www.googleapis.com/drive/v3/files?q=name='balveers' and mimeType='application/vnd.google-apps.spreadsheet'",
+        "https://www.googleapis.com/drive/v3/files?q=name='chrome-extension-result' and mimeType='application/vnd.google-apps.spreadsheet'",
         {
           headers: {
             Authorization: "Bearer " + authToken,

@@ -8,7 +8,7 @@ export async function createSpreadsheet(token, result) {
       },
       body: JSON.stringify({
         properties: {
-          title: "balveers"
+          title: "chrome-extension-result"
         },
         sheets: [
           {
@@ -159,14 +159,14 @@ export async function appendRow(token, spreadsheetId, rowData) {
 }
 
 export function flattenAnalysisResult(email, url, timestamp, analysisResult) {
-  const categories = ['body parts', 'gross', 'inappropriate', 'other', 'profanity', 'racy', 'underwear/lingerie'];
+  const categories = ['body parts', 'gross', 'other', 'profanity', 'racy', 'underwear/lingerie'];
   
   const flattenedRow = [email, url, timestamp];
   
   categories.forEach(category => {
     const categoryData = analysisResult[category] || { percentageScore: '0%', descriptions: '' };
     flattenedRow.push(categoryData.percentageScore || '0%');
-    flattenedRow.push(categoryData.descriptions || '');
+    flattenedRow.push(categoryData.descriptions || 'NA');
   });
   
   return flattenedRow;
