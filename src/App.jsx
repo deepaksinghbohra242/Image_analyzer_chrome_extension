@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { analyzeImage } from "./analyzeImage";
-import { createSpreadsheet, appendRow, flattenAnalysisResult } from "./spreadsheet";
+import {
+  createSpreadsheet,
+  appendRow,
+  flattenAnalysisResult,
+} from "./spreadsheet";
 import "./app.css";
 
 function App() {
@@ -63,7 +67,7 @@ function App() {
     if (url && API_Key) {
       setStatus("Analyzing image...");
       setLoading(true);
-      
+
       analyzeImage(url, API_Key)
         .then((categorized) => {
           console.log("Analysis result:", categorized);
@@ -82,11 +86,11 @@ function App() {
   useEffect(() => {
     if (result && email && authToken && url && timestamp) {
       setStatus("Preparing spreadsheet data...");
-      
+
       const flattenedRow = flattenAnalysisResult(email, url, timestamp, result);
-            
+
       setStatus("Checking for existing spreadsheet...");
-      
+
       fetch(
         "https://www.googleapis.com/drive/v3/files?q=name='chrome-extension-result' and mimeType='application/vnd.google-apps.spreadsheet'",
         {
@@ -100,7 +104,7 @@ function App() {
           if (data.files && data.files.length > 0) {
             setStatus("Adding data to existing spreadsheet...");
             const spreadsheetId = data.files[0].id;
-            
+
             appendRow(authToken, spreadsheetId, flattenedRow)
               .then(() => {
                 setStatus("Data added successfully!");
@@ -110,7 +114,7 @@ function App() {
               });
           } else {
             setStatus("Creating new spreadsheet...");
-            
+
             createSpreadsheet(authToken, flattenedRow)
               .then(() => {
                 setStatus("Spreadsheet created and data added!");
@@ -130,28 +134,59 @@ function App() {
     <div className="App">
       <h1>Image Analyzer</h1>
       <div>
-        <p><strong>Status:</strong> <span style={{color: status.includes('Error') || status.includes('failed') ? 'red' : status.includes('success') ? 'green' : 'blue'}}>{status}</span></p>
-        <p><strong>URL:</strong> {url}</p>
-        <p><strong>Email:</strong> {email}</p>
-        <p><strong>Timestamp:</strong> {timestamp}</p>
-        <p><strong>Analysis Status:</strong> {result ? "Complete" : loading ? "Analyzing..." : "Waiting"}</p>
-        
-        {loading && <div style={{marginTop: '10px'}}>⏳ Processing...</div>}
-        
+        <p>
+          <strong>Status:</strong>{" "}
+          <span
+            style={{
+              color:
+                status.includes("Error") || status.includes("failed")
+                  ? "red"
+                  : status.includes("success")
+                  ? "green"
+                  : "blue",
+            }}
+          >
+            {status}
+          </span>
+        </p>
+        <p>
+          <strong>URL:</strong> {url}
+        </p>
+        <p>
+          <strong>Email:</strong> {email}
+        </p>
+        <p>
+          <strong>Timestamp:</strong> {timestamp}
+        </p>
+        <p>
+          <strong>Analysis Status:</strong>{" "}
+          {result ? "Complete" : loading ? "Analyzing..." : "Waiting"}
+        </p>
+
+        {loading && <div style={{ marginTop: "10px" }}>⏳ Processing...</div>}
+
         {result && (
-          <div style={{marginTop: '20px'}}>
+          <div style={{ marginTop: "20px" }}>
             <h3>Analysis Result:</h3>
-            <div style={{background: '#f5f5f5', padding: '10px', borderRadius: '5px', maxHeight: '300px', overflow: 'auto'}}>
-              <pre>{JSON.stringify(result, null, 2)}</pre>
-            </div>
-            
-            <h3>Spreadsheet Data Preview:</h3>
-            <div style={{background: '#f0f8ff', padding: '10px', borderRadius: '5px', marginTop: '10px'}}>
-              {Object.entries(result).map(([category, data]) => (
-                <div key={category} style={{marginBottom: '5px'}}>
-                  <strong>{category}:</strong> {data.percentageScore} - {data.descriptions || 'No description'}
-                </div>
-              ))}
+            <div
+              style={{
+                padding: "10px",
+                borderRadius: "5px",
+                maxHeight: "300px",
+                overflow: "auto",
+              }}
+            >
+              {Object.entries(result)
+                .filter(
+                  ([category, data]) =>
+                    data.descriptions && data.descriptions.length > 0
+                )
+                .map(([category, data]) => (
+                  <div key={category} style={{ marginBottom: "5px" }}>
+                    <strong style={{color : "#ff7722"}}>{category}:</strong> {data.percentageScore} -{" "}
+                    {data.descriptions}
+                  </div>
+                ))}
             </div>
           </div>
         )}
