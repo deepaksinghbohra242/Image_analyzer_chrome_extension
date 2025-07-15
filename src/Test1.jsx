@@ -1,80 +1,128 @@
-import React, { useEffect, useState } from 'react';
-import { analyzeImage } from './analyzeImage';
-import { getCurrentTabUrl, getGoogleEmail, getCurrentTimestamp } from './getUserData';
+import React, { useState, useEffect } from "react";
+import { analyzeImage } from "./analyzeImage";
+import { createSpreadsheet, appendRow } from "./spreadsheet";
+import "./app.css";
 
-function Test() {
-  const [data, setData] = useState({ url: '', time: '', email: '' });
+function App() {
+  const [url, setUrl] = useState(
+    "https://static.vecteezy.com/system/resources/previews/009/418/381/non_2x/simple-3d-editable-text-effect-vector.jpg"
+  );
+  const [timestamp, setTimestamp] = useState("");
+  const [email, setEmail] = useState("");
   const [result, setResult] = useState(null);
+  const [finalResult, setFinalResult] = useState(null);
   const API_Key = import.meta.env.VITE_API_KEY;
 
   useEffect(() => {
-    (async () => {
-      try {
-        const [url, email] = await Promise.all([
-          getCurrentTabUrl(),
-          getGoogleEmail()
-        ]);
-        const time = getCurrentTimestamp();
+    if (typeof chrome !== "undefined" && chrome.tabs) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const currentUrl = tabs[0]?.url;
+        if (currentUrl) {
+          setUrl(currentUrl);
+          setTimestamp(new Date().toISOString());
 
-        setData({ url, time, email });
-
-        // Optional: only analyze if it's an image URL
-        if (url && (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.jpeg'))) {
-          const categorized = await analyzeImage(url, API_Key);
-          setResult(categorized);
+          analyzeImage(currentUrl, API_Key)
+            .then((categorized) => setResult(categorized))
+            .catch((err) => console.error("Analyze error:", err));
         }
-      } catch (err) {
-        console.error('Error:', err);
-      }
-    })();
+      });
+    }
+    if (chrome.identity) {
+      chrome.identity.getAuthToken({ interactive: true }, (token) => {
+        if (chrome.runtime.lastError || !token) {
+          console.error("Auth error:", chrome.runtime.lastError?.message);
+          return;
+        }
+
+        fetch("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.email) setEmail(data.email);
+          })
+          .catch((err) => console.error("Failed to fetch user info", err));
+
+        fetch(
+          "https://www.googleapis.com/drive/v3/files?q=name='balveer' and mimeType='application/vnd.google-apps.spreadsheet'",
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.files && data.files.length > 0) {
+              console.log("Spreadsheet already exists:", data.files[0].id);
+              const spreadsheetId = data.files[0].id;
+              appendRow(token, spreadsheetId , result);
+            } else {
+              console.log("No spreadsheet found. Creating one...");
+              createSpreadsheet(token , result);
+            }
+          });
+      });
+    }
   }, []);
 
-  async function handleClick() {
-    if (!data.url) return;
+  const handleClick = async () => {
+    if (!url) return;
+
     try {
-      const categorized = await analyzeImage(data.url, API_Key);
+      const categorized = await analyzeImage(url, API_Key);
       setResult(categorized);
+      setTimestamp(new Date().toISOString());
     } catch (err) {
-      console.error('Analyze error:', err);
+      console.error("Analyze error on button click:", err);
     }
-  }
+  };
+  console.log("Result:", result);
 
   return (
-    <div style={{ padding: "20px", width: 350 }}>
-      <h2>Image Analysis</h2>
-      <p><strong>Email:</strong> {data.email || "Loading..."}</p>
-      <p><strong>Timestamp:</strong> {data.time || "Loading..."}</p>
-      <p><strong>URL:</strong> {data.url || "Loading..."}</p>
+    <>
+      <div className="container">
+        <h1>Image Analyzer</h1>
+        <button onClick={handleClick}>Analyze Again</button>
 
-      {data.url && (
-        <img src={data.url} alt="Analyzed" width={300} style={{ marginTop: 10 }} />
-      )}
-
-      <br />
-      <button onClick={handleClick} style={{ marginTop: 10 }}>
-        Analyze Image
-      </button>
-
-      {result && (
-        <div style={{ marginTop: "20px" }}>
-          {Object.entries(result).map(([category, items]) => (
-            <div key={category}>
-              <h4>{category.toUpperCase()}</h4>
-              {items.length > 0 ? (
-                <ul>
-                  {items.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>None detected.</p>
-              )}
-            </div>
-          ))}
+        <div>
+          <strong>Email:</strong> {email || "Fetching..."}
         </div>
-      )}
-    </div>
+        <div>
+          <strong>URL:</strong> {url || "Fetching..."}
+        </div>
+        <div>
+          <strong>Timestamp:</strong> {timestamp}
+        </div>
+
+        {result && (
+          <div>
+            <h2>Results:</h2>
+            <ul className="result-list">
+              {Object.entries(result).map(([key, value]) => {
+                const descriptions = Array.isArray(value?.descriptions)
+                  ? value.descriptions
+                  : value?.descriptions
+                  ? [value.descriptions]
+                  : [];
+
+                if (descriptions.length > 0 && descriptions[0] !== "") {
+                  return (
+                    <li key={key}>
+                      <strong>{key}</strong>: {descriptions.join(", ")}
+                    </li>
+                  );
+                }
+                return null;
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
-export default Test;
+export default App;

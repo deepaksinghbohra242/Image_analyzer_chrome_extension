@@ -9,7 +9,7 @@
   ],
   "oauth2": {
     "client_id": "648176215467-ucg54kvk91gisfeteqgq16li8norporr.apps.googleusercontent.com",
-    "scopes": ["email", "profile"]
+    "scopes": ["email", "profile" , "https://www.googleapis.com/auth/spreadsheets" , "https://www.googleapis.com/auth/drive.file"]
   },
   "host_permissions": [
     "<all_urls>"

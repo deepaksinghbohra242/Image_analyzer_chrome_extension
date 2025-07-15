@@ -43,7 +43,6 @@ export async function analyzeImage(url, API_Key) {
       "body parts": { totalScore: 0, count: 0, descriptions: "" },
       gross: { totalScore: 0, count: 0, descriptions: "" },
       profanity: { totalScore: 0, count: 0, descriptions: "" },
-      inappropriate: { totalScore: 0, count: 0, descriptions: "" },
       other: { totalScore: 0, count: 0, descriptions: "" },
     };
 
