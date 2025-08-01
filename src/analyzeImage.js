@@ -4,6 +4,7 @@ import {
   Lingerie,
   Profanity,
   Racy,
+  Inappropriate,
 } from "./Data";
 
 export async function analyzeImage(url, API_Key) {
@@ -37,7 +38,7 @@ export async function analyzeImage(url, API_Key) {
     const safeSearch = annotations.safeSearchAnnotation || {};
     const textAnnotations = annotations.textAnnotations || [];
 
-    console.log("Labels:", labels); 
+    console.log("Labels:", labels);
 
     const categories = {
       racy: { totalScore: 0, count: 0, descriptions: "" },
@@ -45,22 +46,45 @@ export async function analyzeImage(url, API_Key) {
       "body parts": { totalScore: 0, count: 0, descriptions: "" },
       gross: { totalScore: 0, count: 0, descriptions: "" },
       profanity: { totalScore: 0, count: 0, descriptions: "" },
+      inappropriate: { totalScore: 0, count: 0, descriptions: "" },
       other: { totalScore: 0, count: 0, descriptions: "" },
     };
 
     function categorizeText(text) {
       const lowerText = text.toLowerCase();
-      
-      if (Lingerie.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+
+      if (
+        Lingerie.some((word) =>
+          new RegExp(`\\b${word}\\b`, "i").test(lowerText)
+        )
+      ) {
         return "underwear/lingerie";
-      } else if (BodyParts.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+      } else if (
+        BodyParts.some((word) =>
+          new RegExp(`\\b${word}\\b`, "i").test(lowerText)
+        )
+      ) {
         return "body parts";
-      } else if (Gross.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+      } else if (
+        Gross.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))
+      ) {
         return "gross";
-      } else if (Profanity.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+      } else if (
+        Profanity.some((word) =>
+          new RegExp(`\\b${word}\\b`, "i").test(lowerText)
+        )
+      ) {
         return "profanity";
-      } else if (Racy.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))) {
+      } else if (
+        Racy.some((word) => new RegExp(`\\b${word}\\b`, "i").test(lowerText))
+      ) {
         return "racy";
+      } else if (
+        Inappropriate.some((word) =>
+          new RegExp(`\\b${word}\\b`, "i").test(lowerText)
+        )
+      ) {
+        return "inappropriate";
       }
       return "other";
     }
@@ -91,7 +115,7 @@ export async function analyzeImage(url, API_Key) {
     for (const type of safeSearchCategories) {
       const likelihood = safeSearch[type];
       let scoreToAdd = 0;
-      
+
       if (likelihood === "VERY_LIKELY") {
         scoreToAdd = 1;
       } else if (likelihood === "LIKELY") {
@@ -99,7 +123,7 @@ export async function analyzeImage(url, API_Key) {
       } else if (likelihood === "POSSIBLE") {
         scoreToAdd = 0.8;
       }
-      
+
       if (scoreToAdd > 0) {
         categories["racy"].descriptions += "racy content, ";
         categories["racy"].totalScore += scoreToAdd;
